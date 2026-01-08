@@ -1,82 +1,109 @@
-name: Charlotte Toolkit
-description: AI-powered security analysis toolkit that leverages Charlotte AI to provide expert-level threat intelligence, automatic indicator extraction, and comprehensive security assessments
-logo: images/charlotte-logo.png
-vendor: CrowdStrike
+name: Azure-Analyst
+description: UI Extension that analyzes CrowdStrike detections and incidents using Azure OpenAI
+logo: ""
+vendor: ""
 vendor_products: []
-use_case: Security Analysis
-manifest_version: '2023-05-09'
+use_case: "Threat analysis and investigation enrichment"
+manifest_version: "2023-05-09"
+
+# Files to exclude from bundle
 ignored:
-- ui/(extensions|pages)/[^\/]*?/node_modules
-- ui/(extensions|pages)/.*/__tests__/.*
-- ui/(extensions|pages)/.*/.*\.test\..*
-- e2e
-- e2e/.+
+  - CITATION.cff
+  - CODE_OF_CONDUCT.md
+  - LICENSE
+  - SECURITY.md
+  - SUPPORT.md
+  - docs
+  - shared
+  - node_modules
+  - yarn.lock
+  - package.json
+  - ui/node_modules
+  - ui/shared/node_modules
+  - ui/(extensions|pages)/[^\\/]*?/public
+  - ui/(extensions|pages)/[^\\/]*?/index.html
+  - ui/(extensions|pages)/[^\\/]*?/favicon.ico
+  - ui/(extensions|pages)/.*?/node_modules
+  - ui/(extensions|pages)/.*?/config
+  - ui/(extensions|pages)/.*?/src
+  - ui/(extensions|pages)/.*?/\.gitignore
+  - ui/(extensions|pages)/.*?/package\.json
+  - ui/(extensions|pages)/.*?/tsconfig\.json
+  - ui/(extensions|pages)/.*?/tsconfig\..*\.json
+  - ui/(extensions|pages)/.*?/.*?\\.(md|log|lock|cjs)
+  - ui/(extensions|pages)/.*?/*\.ts
+  - ui/(extensions|pages)/*\\.gz
+
+# UI Configuration
 ui:
-  homepage: ''
   extensions:
-  - name: Charlotte Toolkit
-    description: Charlotte Toolkit UI
-    path: ui/extensions/charlotte-toolkit-ui/dist
-    entrypoint: ui/extensions/charlotte-toolkit-ui/dist/index.html
-    sockets:
-    - activity.detections.details
-    - ngsiem.workbench.details
-    - xdr.detections.panel
-    content_security_policy:
-      connect-src:
-      - self
-      - 'data:'
-      - https://cdn.jsdelivr.net
-      style-src:
-      - self
-      - unsafe-inline
-      - https://cdn.jsdelivr.net
-      - https://fonts.googleapis.com
-      style-src-elem:
-      - self
-      - unsafe-inline
-      - https://cdn.jsdelivr.net
-      - https://fonts.googleapis.com
-      script-src:
-      - self
-      - unsafe-inline
-      - unsafe-eval
-      - https://cdn.jsdelivr.net
-      form-action:
-      - self
-      img-src:
-      - self
-      - 'data:'
-      - https://cdn.jsdelivr.net
-      media-src:
-      - self
-      object-src:
-      - self
-    permissions: []
-    is_ui_builder: false
-  pages: {}
-  dashboards: {}
-  navigation: {}
-api_integrations: []
-rtr_scripts: []
-collections: []
+    - name: Azure-Analyst Extension
+      description: Analyzes detections using Azure OpenAI
+      path: ui/extensions/azure-analyst/dist
+      entrypoint: ui/extensions/azure-analyst/dist/index.html
+      sockets:
+        - activity.detections.details
+        - crowdscore.incidents.details
+      content_security_policy:
+        connect-src:
+          - self
+          - "data:"
+          - "https://*.openai.azure.com"
+          - "https://*.cognitiveservices.azure.com"
+        style-src:
+          - self
+          - "https://fonts.googleapis.com"
+        style-src-elem: []
+        script-src:
+          - self
+        form-action: []
+        img-src:
+          - self
+          - "data:"
+        media-src: []
+        object-src: []
+      permissions: []
+      is_ui_builder: false
+
+# Authentication scopes required
 auth:
   scopes:
-  - incidents:write
-  - incidents:read
-  - workflow:read
-  - workflow:write
+    - detects:read
+    - alerts:read
   permissions: {}
   roles: []
-functions: []
+
+# Foundry Functions (Backend)
+functions:
+  - name: azure_analyzer
+    description: Sends detection/incident data to Azure OpenAI for analysis
+    file_location: backend_function.py
+    handler: handler
+    runtime: python3.9
+    memory_limit_mb: 512
+    timeout_seconds: 30
+
+# Workflows for SOAR integration
 workflows:
-- name: Charlotte Toolkit Chat Completion
-  path: workflows/Charlotte_Toolkit_Chat_Completion.yml
-  permissions: []
-parsers: []
+  - name: analyze_detection_workflow
+    description: SOAR workflow action to analyze detections with Azure OpenAI
+    definition: workflows/analyze_detection.yaml
+
+# Collections (optional - for storing analysis results)
+collections: []
+
+# API Integrations
+api_integrations: []
+
+# RTR Scripts
+rtr_scripts: []
+
+# LogScale Integrations
 logscale:
   saved_searches: []
+
+# Lookup Files
 lookup_files: []
-docs:
-  path: app_docs
-  entrypoint: README.md
+
+# Documentation
+app_docs: []
