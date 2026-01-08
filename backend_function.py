@@ -15,22 +15,35 @@ import logging
 from typing import Dict, Any, Optional
 
 # ============================================================================
-# CONFIGURATION - PASTE YOUR AZURE CREDENTIALS HERE
+# CONFIGURATION - AZURE CREDENTIALS
 # ============================================================================
 
 # Your Azure OpenAI API Key (store securely in environment variables in production)
-# Example: os.getenv('AZURE_OPENAI_API_KEY')
+# Retrieve from: Azure Portal > Your Resource > Keys and Endpoint > Show Keys
 AZURE_API_KEY = "your-azure-openai-api-key-here"
 
-# Your Azure OpenAI Endpoint URL
-# Format: https://<your-resource-name>.openai.azure.com/
-AZURE_ENDPOINT_URL = "https://your-resource-name.openai.azure.com"
+# Your Azure OpenAI Resource Name (extracted from endpoint)
+# From your endpoint: https://ad-jo-mg8x3t2p-eastus2.cognitiveservices.azure.com/...
+# Resource Name: ad-jo-mg8x3t2p
+AZURE_RESOURCE_NAME = "ad-jo-mg8x3t2p"
 
-# Your deployment name in Azure OpenAI (e.g., gpt-4, gpt-35-turbo)
-AZURE_DEPLOYMENT_NAME = "gpt-4"
+# Your Azure Region (extracted from endpoint)
+# From your endpoint: https://ad-jo-mg8x3t2p-eastus2.cognitiveservices.azure.com/...
+# Region: eastus2
+AZURE_REGION = "eastus2"
 
-# API version (check Azure OpenAI docs for latest)
-API_VERSION = "2024-02-15-preview"
+# Your deployment name (extracted from endpoint)
+# From your endpoint: .../deployments/gpt-5/...
+# Deployment Name: gpt-5
+AZURE_DEPLOYMENT_NAME = "gpt-5"
+
+# API version (extracted from endpoint)
+# From your endpoint: ?api-version=2025-01-01-preview
+# API Version: 2025-01-01-preview
+API_VERSION = "2025-01-01-preview"
+
+# Construct the full endpoint URL
+AZURE_ENDPOINT_URL = f"https://{AZURE_RESOURCE_NAME}-{AZURE_REGION}.cognitiveservices.azure.com"
 
 # ============================================================================
 # LOGGING CONFIGURATION
@@ -311,8 +324,8 @@ def validate_azure_config() -> bool:
         logger.error("Azure API Key not configured")
         return False
     
-    if not AZURE_ENDPOINT_URL or AZURE_ENDPOINT_URL == "https://your-resource-name.openai.azure.com":
-        logger.error("Azure Endpoint URL not configured")
+    if not AZURE_ENDPOINT_URL or "cognitiveservices.azure.com" not in AZURE_ENDPOINT_URL:
+        logger.error("Azure Endpoint URL not configured correctly")
         return False
     
     return True
